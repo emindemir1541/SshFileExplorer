@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">SSH File Explorer</string>
+
+    <string name="host">Host</string>
+    <string name="port">Port</string>
+    <string name="username">User Name</string>
+    <string name="password">Password</string>
+    <string name="connect">Connect</string>
+
+    <string name="history">History</string>
+
+    <string name="path">Path</string>
+    <string name="image">Image</string>
+    <string name="video">Video</string>
+    <string name="audio">Audio</string>
+    <string name="archive">Archive</string>
+    <string name="text">Text</string>
+    <string name="program">Program</string>
+    <string name="unknown">Unknown</string>
+    <string name="folder">Folder</string>
+
+
+    <!--messages-->
+    <string name="connection_failed">Connection Failed: </string>
+    <string name="command_push_failed">Command Push Failed: </string>
+</resources>

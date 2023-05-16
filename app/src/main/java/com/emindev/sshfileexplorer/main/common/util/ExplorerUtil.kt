@@ -6,7 +6,7 @@ import com.emindev.sshfileexplorer.main.common.model.FileModel
 
 object ExplorerUtil {
     fun filesInPath(path: String,files:(Resource<List<FileModel>>)->Unit) {
-        SSHChannel.command("ls -apF $path | grep -v /") { command ->
+        SSHChannel.command("ls -ap $path | grep -v /") { command ->
             when (command) {
                 is Resource.Error -> {files.invoke(Resource.Error(command.message))}
                 is Resource.Loading -> files.invoke(Resource.Loading())
@@ -16,7 +16,6 @@ object ExplorerUtil {
     }
     fun foldersInPath(path: String,files:(Resource<List<FileModel>>)->Unit){
         SSHChannel.command("ls -d $path*/" ) { command ->
-            test = "command" + command.data
             when (command) {
                 is Resource.Error -> {files.invoke(Resource.Error(command.message))}
                 is Resource.Loading -> files.invoke(Resource.Loading())

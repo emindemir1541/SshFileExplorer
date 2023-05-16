@@ -20,6 +20,7 @@ import com.emindev.expensetodolist.helperlibrary.common.helper.test
 import com.emindev.sshfileexplorer.helperlibrary.common.model.Resource
 import com.emindev.sshfileexplorer.R
 import com.emindev.sshfileexplorer.helperlibrary.common.helper.DateUtil
+import com.emindev.sshfileexplorer.main.common.util.ExplorerUtil
 import com.emindev.sshfileexplorer.main.common.util.SSHChannel
 import com.emindev.sshfileexplorer.main.data.sshrepository.Device
 import com.emindev.sshfileexplorer.main.data.sshrepository.DeviceEvent
@@ -56,6 +57,8 @@ fun MainPage(state: DeviceState, onEvent: (DeviceEvent) -> Unit, explorerPage: M
                 .fillMaxWidth()
                 .padding(16.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
                 Text(text = stringResource(id = R.string.history))
+
+
 
             }
         }

@@ -7,6 +7,8 @@ import com.jcraft.jsch.JSch
 import com.jcraft.jsch.Session
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 
@@ -14,6 +16,13 @@ object SSHChannel {
 
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
     private lateinit var session: Session
+
+    val connection = flow<Boolean> {
+        while (true) {
+            emit(session.isConnected)
+            delay(1000)
+        }
+    }
 
     fun connect(device: Device, situation: (Resource<String>) -> Unit) {
         situation.invoke(Resource.Loading())
@@ -58,9 +67,9 @@ object SSHChannel {
     fun disconnect() = coroutineScope.launch {
         try {
 
-        if (session.isConnected)
-            session.disconnect()
-        }catch (_:Exception){
+            if (session.isConnected)
+                session.disconnect()
+        } catch (_: Exception) {
 
         }
 

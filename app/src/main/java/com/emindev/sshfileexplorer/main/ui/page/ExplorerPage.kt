@@ -1,6 +1,7 @@
 package com.emindev.sshfileexplorer.main.ui.page
 
 import android.annotation.SuppressLint
+import android.content.Context
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -22,16 +23,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.emindev.expensetodolist.helperlibrary.common.helper.Helper
-import com.emindev.expensetodolist.helperlibrary.common.helper.test
 import com.emindev.sshfileexplorer.helperlibrary.common.model.Resource
 import com.emindev.sshfileexplorer.R
-import com.emindev.sshfileexplorer.helperlibrary.common.helper.DateUtil
 import com.emindev.sshfileexplorer.helperlibrary.common.helper.StringHelper
-import com.emindev.sshfileexplorer.main.common.constant.DataSituation
-import com.emindev.sshfileexplorer.main.common.constant.DataSituation.*
 import com.emindev.sshfileexplorer.main.common.model.ExplorerViewModel
 import com.emindev.sshfileexplorer.main.common.model.FileModel
-import com.emindev.sshfileexplorer.main.common.util.ExplorerUtil
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
@@ -39,49 +35,12 @@ fun ExplorerPage(explorerPage: MutableState<Boolean>, viewModel: ExplorerViewMod
 
     val context = LocalContext.current
     val backEnabled = remember { mutableStateOf(true) }
-    val filesInPath = remember { mutableStateOf(emptyList<FileModel>()) }
-    val foldersInPath = remember { mutableStateOf(emptyList<FileModel>()) }
-    val currentPathList = viewModel.currentPathList.collectAsState()
+    val fileResource = viewModel.resource.collectAsState()
     val currentPathString = viewModel.currentPathString.collectAsState()
-    val situation = remember { mutableStateOf(SUCCESS) }
+    val situation = remember { mutableStateOf<Resource<String>>(Resource.Success(null)) }
     val isOnline = Helper.isOnlineFlow(context).collectAsState(false)
 
-    checkConnections(situation,isOnline)
-
-    ExplorerUtil.foldersInPath(currentPathString.value) { folders ->
-        when (folders) {
-            is Resource.Error -> {
-                foldersInPath.value = emptyList()
-                situation.value = ERROR
-            }
-            is Resource.Loading -> {
-                situation.value = LOADING
-            }
-            is Resource.Success -> {
-                foldersInPath.value = (folders.data ?: emptyList())
-                situation.value = SUCCESS
-            }
-        }
-    }
-
-    ExplorerUtil.filesInPath(currentPathString.value) { files ->
-        when (files) {
-            is Resource.Error -> {
-                filesInPath.value = emptyList()
-                situation.value = ERROR
-            }
-            is Resource.Loading -> {
-                situation.value = LOADING
-            }
-            is Resource.Success -> {
-                filesInPath.value = files.data ?: emptyList()
-                situation.value = SUCCESS
-            }
-        }
-    }
-
-
-
+    checkConnections(situation, isOnline, context)
 
     BackHandler(backEnabled.value) {
         if (currentPathString.value == StringHelper.delimiter) {
@@ -95,42 +54,32 @@ fun ExplorerPage(explorerPage: MutableState<Boolean>, viewModel: ExplorerViewMod
 
     }
 
-    Box(modifier = Modifier) {
-        test = currentPathList.value
-    }
-    Box(modifier = Modifier) {
-        test = currentPathString.value
-    }
     LazyColumn(modifier = Modifier
         .fillMaxSize()) {
         item {
             Text(modifier = Modifier.padding(16.dp), text = stringResource(id = R.string.path) + ":    ${currentPathString.value}", fontWeight = FontWeight.Bold)
         }
-        when (situation.value) {
-            SUCCESS -> {
-                items(foldersInPath.value) { folder ->
+
+        when (fileResource.value) {
+            is Resource.Success -> {
+                items(fileResource.value.data ?: emptyList()) { folder ->
                     FileRow(file = folder) {
                         viewModel.nextPath(folder.fileName)
                     }
                 }
-
-                items(filesInPath.value) { file ->
-                    FileRow(file = file) {
-
-                    }
-                }
             }
-            LOADING -> {
+            is Resource.Loading -> {
                 item {
                     LoadingView()
                 }
             }
-            ERROR -> {
-                item{
-                    ErrorView("error")
+            is Resource.Error -> {
+                item {
+                    ErrorView(fileResource.value.message ?: stringResource(id =R.string.unknown_error ))
                 }
             }
         }
+
 
 
     }
@@ -161,14 +110,14 @@ private fun LoadingView() {
 }
 
 @Composable
-private fun ErrorView(error:String) {
+private fun ErrorView(error: String) {
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
         Text(text = error)
     }
 }
 
-private fun checkConnections(situation: MutableState<DataSituation>,isOnline:State<Boolean>){
-    if (!isOnline.value){
-        situation.value = ERROR
+private fun checkConnections(situation: MutableState<Resource<String>>, isOnline: State<Boolean>, context: Context) {
+    if (!isOnline.value) {
+        situation.value = Resource.Error(context.getString(R.string.ssh_connection_lost))
     }
 }

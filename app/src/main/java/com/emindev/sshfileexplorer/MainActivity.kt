@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.room.Room
+import com.emindev.sshfileexplorer.main.common.model.ExplorerViewModel
 import com.emindev.sshfileexplorer.main.data.sshrepository.DeviceDatabase
 import com.emindev.sshfileexplorer.main.data.sshrepository.DeviceViewModel
 import com.emindev.sshfileexplorer.main.ui.page.ExplorerPage
@@ -39,6 +40,8 @@ class MainActivity : ComponentActivity() {
         }
     )
 
+    private val explorerViewModel by viewModels<ExplorerViewModel>()
+
     @SuppressLint("CoroutineCreationDuringComposition")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,7 +55,7 @@ class MainActivity : ComponentActivity() {
                     val explorerPage = remember { mutableStateOf(false) }
 
                     if (explorerPage.value)
-                        ExplorerPage()
+                        ExplorerPage(explorerPage,explorerViewModel)
                     else
                         MainPage(state = state, onEvent = deviceViewModel::onEvent,explorerPage)
 

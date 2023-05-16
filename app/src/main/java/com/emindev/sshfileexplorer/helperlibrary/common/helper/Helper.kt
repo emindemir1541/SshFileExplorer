@@ -8,6 +8,9 @@ import android.location.LocationManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.provider.Settings.Secure
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.flow
+import kotlin.coroutines.coroutineContext
 import kotlin.system.exitProcess
 
 
@@ -36,6 +39,26 @@ object Helper {
         return false
     }
 
+    fun isOnlineFlow(context: Context) = flow {
+        while (true){
+            emit(isOnline(context))
+            delay(2000)
+        }
+    }
+
+     fun isGpsOpenFlow(context: Context) = flow {
+        while (true){
+            emit(isGpsOpen(context))
+            delay(2000)
+        }
+    }
+     fun isLocationNetworkOpenFlow(context: Context) = flow {
+        while (true){
+            emit(isLocationNetworkOpen(context))
+            delay(2000)
+        }
+    }
+
     fun isGpsOpen(context: Context): Boolean {
         val locationManager: LocationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         val gpsStatus = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
@@ -55,19 +78,12 @@ object Helper {
         exitProcess(0)
     }
 
-    fun String.cleanBlanks(): String = this.replace(" ", "")
 
     val Context.isDarkThemeOn: Boolean get() =
          this.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
 
 
-    fun Float.clearZero(): String {
-        val splitValue = this.toString().split(".")
-        return if (splitValue[1] == "0") {
-            splitValue[0]
-        }
-        else this.toString()
-    }
+
 
 }
 

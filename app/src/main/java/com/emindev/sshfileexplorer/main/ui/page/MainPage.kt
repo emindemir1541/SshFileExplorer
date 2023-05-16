@@ -1,5 +1,6 @@
 package com.emindev.sshfileexplorer.main.ui.page
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -7,10 +8,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.emindev.expensetodolist.helperlibrary.common.helper.Helper
+import com.emindev.expensetodolist.helperlibrary.common.helper.addLog
 import com.emindev.expensetodolist.helperlibrary.common.helper.test
 import com.emindev.sshfileexplorer.helperlibrary.common.model.Resource
 import com.emindev.sshfileexplorer.R
@@ -98,20 +103,18 @@ fun connect(device: Device, onEvent: (DeviceEvent) -> Unit, explorerPage: Mutabl
 
     SSHChannel.connect(device) { situation ->
         when (situation) {
-            is Resource.Error -> test = "Connection Error:" + situation.message
+            is Resource.Error -> addLog("Connection Error:",situation.message)
             is Resource.Loading -> {}
             is Resource.Success -> {
                 SSHChannel.command("ls") { command ->
                     when (command) {
-                        is Resource.Error -> test = "Command Error:" + command.message
+                        is Resource.Error -> addLog("Command Error:" ,command.message)
                         is Resource.Loading -> {}
                         is Resource.Success -> {
                             onEvent(DeviceEvent.Connect)
                             onEvent(DeviceEvent.SaveDevice)
                             onEvent(DeviceEvent.HideDialog)
                             explorerPage.value = true
-                            val list = command.data?.split("\n")
-                            test = list?.get(3)
                         }
                     }
                 }

@@ -1,5 +1,6 @@
 package com.emindev.sshfileexplorer.main.common.util
 
+import com.emindev.expensetodolist.helperlibrary.common.helper.test
 import com.emindev.sshfileexplorer.helperlibrary.common.model.Resource
 import com.emindev.sshfileexplorer.main.common.model.FileModel
 
@@ -15,6 +16,7 @@ object ExplorerUtil {
     }
     fun foldersInPath(path: String,files:(Resource<List<FileModel>>)->Unit){
         SSHChannel.command("ls -d $path*/" ) { command ->
+            test = "command" + command.data
             when (command) {
                 is Resource.Error -> {files.invoke(Resource.Error(command.message))}
                 is Resource.Loading -> files.invoke(Resource.Loading())

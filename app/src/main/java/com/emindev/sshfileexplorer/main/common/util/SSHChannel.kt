@@ -40,28 +40,25 @@ object SSHChannel {
         }
     }
 
-    fun command(command: String, output: (Resource<String>) -> Unit) {
-        output.invoke(Resource.Loading())
-        coroutineScope.launch {
-            try {
+    fun command(command: String): String {
+        try {
+            val channel = session.openChannel("exec") as ChannelExec
+            val outputStream = ByteArrayOutputStream()
+            channel.outputStream = outputStream
+            channel.setCommand(command)
+            channel.connect()
 
-                val channel = session.openChannel("exec") as ChannelExec
-                val outputStream = ByteArrayOutputStream()
-                channel.outputStream = outputStream
-                channel.setCommand(command)
-                channel.connect()
-
-                while (!channel.isClosed) {
-                    Thread.sleep(1000)
-                }
-
-                channel.disconnect()
-
-                output.invoke(Resource.Success(outputStream.toString()))
-            } catch (e: Exception) {
-                output.invoke(Resource.Error(e.localizedMessage))
+            while (!channel.isClosed) {
+                Thread.sleep(1000)
             }
+
+            channel.disconnect()
+
+            return outputStream.toString()
+        } catch (e: Exception) {
+            throw e
         }
+
     }
 
     fun disconnect() = coroutineScope.launch {

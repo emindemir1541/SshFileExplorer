@@ -2,7 +2,7 @@ package com.emindev.sshfileexplorer.helperlibrary.common.helper
 
 object StringHelper {
 
-    val delimiter = "/"
+    const val delimiter = "/"
 
     val String.cleanBlanks: String
         get() = this.replace(" ", "")
@@ -10,7 +10,13 @@ object StringHelper {
     val String.clearDelimiter: String
         get() = this.replace("/", "")
 
-
+    fun ArrayList<String>.clearBlankItems(): ArrayList<String> {
+        this.forEach {
+            if (it.isBlank())
+                this.remove(it)
+        }
+        return this
+    }
 
     fun Float.clearZero(): String {
         val splitValue = this.toString().split(".")

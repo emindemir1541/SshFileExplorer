@@ -2,6 +2,7 @@ package com.emindev.sshfileexplorer.main.common.model
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.emindev.sshfileexplorer.helperlibrary.common.helper.PathHelper
 import com.emindev.sshfileexplorer.helperlibrary.common.helper.StringHelper
 import com.emindev.sshfileexplorer.helperlibrary.common.model.Resource
 import com.emindev.sshfileexplorer.main.common.util.ExplorerUtil
@@ -41,32 +42,11 @@ class ExplorerViewModel() : ViewModel() {
 
     init {
         currentPathString.combine(_currentPathList) { string, list ->
-            var newPath = StringHelper.delimiter
-            _currentListArray.forEach { path ->
-                newPath += path + StringHelper.delimiter
-            }
+            val newPath = PathHelper.listToString(_currentListArray)
             _currentPathString.value = newPath
-            ExplorerUtil.foldersInPath(newPath) { folderResource ->
-                val sourceList = ArrayList<FileModel>()
 
-                when(folderResource){
-                    is Resource.Error -> _resource.value = folderResource
-                    is Resource.Loading -> _resource.value = folderResource
-                    is Resource.Success -> {
-                        sourceList.addAll(folderResource.data?: emptyList())
-                        ExplorerUtil.filesInPath(newPath){fileResource ->
-                            when(fileResource){
-                                is Resource.Error -> _resource.value = fileResource
-                                is Resource.Loading -> _resource.value = fileResource
-                                is Resource.Success ->{
-                                    sourceList.addAll(fileResource.data?: emptyList())
-                                    _resource.value = Resource.Success(sourceList)
-                                }
-                            }
-                        }
-                    }
-                }
-
+            ExplorerUtil.sourceInPath(newPath) { fileSource ->
+                _resource.value = fileSource
             }
 
 

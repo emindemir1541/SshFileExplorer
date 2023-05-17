@@ -59,7 +59,6 @@ fun MainPage(state: DeviceState, onEvent: (DeviceEvent) -> Unit, explorerPage: M
                 Text(text = stringResource(id = R.string.history))
 
 
-
             }
         }
 
@@ -106,21 +105,13 @@ fun connect(device: Device, onEvent: (DeviceEvent) -> Unit, explorerPage: Mutabl
 
     SSHChannel.connect(device) { situation ->
         when (situation) {
-            is Resource.Error -> addLog("Connection Error:",situation.message)
+            is Resource.Error -> addLog("Connection Error:", situation.message)
             is Resource.Loading -> {}
             is Resource.Success -> {
-                SSHChannel.command("ls") { command ->
-                    when (command) {
-                        is Resource.Error -> addLog("Command Error:" ,command.message)
-                        is Resource.Loading -> {}
-                        is Resource.Success -> {
-                            onEvent(DeviceEvent.Connect)
-                            onEvent(DeviceEvent.SaveDevice)
-                            onEvent(DeviceEvent.HideDialog)
-                            explorerPage.value = true
-                        }
-                    }
-                }
+                onEvent(DeviceEvent.Connect)
+                onEvent(DeviceEvent.SaveDevice)
+                onEvent(DeviceEvent.HideDialog)
+                explorerPage.value = true
             }
         }
     }

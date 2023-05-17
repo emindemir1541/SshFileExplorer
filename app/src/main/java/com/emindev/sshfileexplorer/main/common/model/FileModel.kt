@@ -1,8 +1,10 @@
 package com.emindev.sshfileexplorer.main.common.model
 
+import com.emindev.expensetodolist.helperlibrary.common.helper.test
 import com.emindev.sshfileexplorer.R
-import com.emindev.sshfileexplorer.helperlibrary.common.helper.StringHelper.cleanBlanks
-import com.emindev.sshfileexplorer.helperlibrary.common.helper.StringHelper.clearDelimiter
+import com.emindev.sshfileexplorer.helperlibrary.common.helper.PathHelper
+import com.emindev.sshfileexplorer.helperlibrary.common.helper.StringHelper
+import com.emindev.sshfileexplorer.helperlibrary.common.helper.StringHelper.clearBlankItems
 import com.emindev.sshfileexplorer.main.common.constant.FileExtensions
 import com.emindev.sshfileexplorer.main.common.constant.FileType
 
@@ -45,15 +47,15 @@ data class FileModel(val fileName: String, val fileType: FileType, val imageSour
             return newFileList
         }
 
-        fun folder(folderList: List<String>): List<FileModel> {
+        fun folder(folderListCommand: String): List<FileModel> {
 
-            val newFolderList = ArrayList<FileModel>()
+            val pathList = ArrayList<FileModel>()
 
-            folderList.forEach { folderName ->
-                if (folderName.isNotBlank() && !folderName.contains("."))
-                    newFolderList.add(FileModel(folderName.clearDelimiter.cleanBlanks, FileType.FOLDER, R.drawable.folder, R.string.folder))
+            PathHelper.folderCommandToList(folderListCommand).forEach { path ->
+                pathList.add(FileModel(path, FileType.FOLDER, R.drawable.folder, R.string.folder))
             }
-            return newFolderList
+
+            return pathList
         }
 
     }

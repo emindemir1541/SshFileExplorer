@@ -24,15 +24,15 @@ object Helper {
         val capabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
         if (capabilities != null) {
             if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
-                addLog("Internet", "NetworkCapabilities.TRANSPORT_CELLULAR", "", "Helper/isOnline()")
+              //  addLog("Internet", "NetworkCapabilities.TRANSPORT_CELLULAR", "", "Helper/isOnline()")
                 return true
             }
             else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
-                addLog("Internet", "NetworkCapabilities.TRANSPORT_WIFI", "", "Helper/isOnline()")
+                //addLog("Internet", "NetworkCapabilities.TRANSPORT_WIFI", "", "Helper/isOnline()")
                 return true
             }
             else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
-                addLog("Internet", "NetworkCapabilities.TRANSPORT_ETHERNET", "", "Helper/isOnline()")
+                //addLog("Internet", "NetworkCapabilities.TRANSPORT_ETHERNET", "", "Helper/isOnline()")
                 return true
             }
         }

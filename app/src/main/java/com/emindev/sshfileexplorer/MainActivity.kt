@@ -54,10 +54,12 @@ class MainActivity : ComponentActivity() {
 
                     val explorerPage = remember { mutableStateOf(false) }
 
+                    val onEvent = deviceViewModel::onEvent
+
                     if (explorerPage.value)
-                        ExplorerPage(explorerPage,explorerViewModel)
+                        ExplorerPage(explorerPage,explorerViewModel, onEvent)
                     else
-                        MainPage(state = state, onEvent = deviceViewModel::onEvent,explorerPage)
+                        MainPage(state = state, onEvent = onEvent,explorerPage)
 
                 }
 

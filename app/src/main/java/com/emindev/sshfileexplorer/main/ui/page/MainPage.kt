@@ -102,7 +102,6 @@ private fun DeviceRow(device: Device, onClick: () -> Unit) {
 
 fun connect(device: Device, onEvent: (DeviceEvent) -> Unit, explorerPage: MutableState<Boolean>) {
 
-
     SSHChannel.connect(device) { situation ->
         when (situation) {
             is Resource.Error -> addLog("Connection Error:", situation.message)
@@ -115,7 +114,6 @@ fun connect(device: Device, onEvent: (DeviceEvent) -> Unit, explorerPage: Mutabl
             }
         }
     }
-
 
     onEvent(DeviceEvent.SaveDevice)
 }

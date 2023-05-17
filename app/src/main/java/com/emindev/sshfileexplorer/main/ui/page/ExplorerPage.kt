@@ -29,10 +29,11 @@ import com.emindev.sshfileexplorer.helperlibrary.common.helper.StringHelper
 import com.emindev.sshfileexplorer.main.common.constant.FileType
 import com.emindev.sshfileexplorer.main.common.model.ExplorerViewModel
 import com.emindev.sshfileexplorer.main.common.model.FileModel
+import com.emindev.sshfileexplorer.main.data.sshrepository.DeviceEvent
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
-fun ExplorerPage(explorerPage: MutableState<Boolean>, viewModel: ExplorerViewModel) {
+fun ExplorerPage(explorerPage: MutableState<Boolean>, viewModel: ExplorerViewModel,onEvent:(DeviceEvent)->Unit) {
 
     val context = LocalContext.current
     val backEnabled = remember { mutableStateOf(true) }
@@ -41,12 +42,17 @@ fun ExplorerPage(explorerPage: MutableState<Boolean>, viewModel: ExplorerViewMod
     val situation = remember { mutableStateOf<Resource<String>>(Resource.Success(null)) }
     val isOnline = Helper.isOnlineFlow(context).collectAsState(false)
 
+    viewModel.openConnection()
+
+
     checkConnections(situation, isOnline, context)
 
     BackHandler(backEnabled.value) {
         if (currentPathString.value == StringHelper.delimiter) {
+            viewModel.closeConnection()
+            onEvent(DeviceEvent.Disconnect)
             explorerPage.value = false
-            backEnabled.value = false
+           backEnabled.value = false
         }
         else {
             backEnabled.value = true

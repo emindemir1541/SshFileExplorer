@@ -17,9 +17,7 @@ object ExplorerUtil {
             try {
                 val output = SSHChannel.command(SSHCommands.getFolders(path))
                 fileList.addAll(FileModel.folder(output))
-                val command = SSHChannel.command(SSHCommands.getFiles(path)).split("\n")
-                test = command
-                fileList.addAll(FileModel.specifyFile(command))
+                fileList.addAll(FileModel.specifyFile(SSHChannel.command(SSHCommands.getFiles(path)) ))
                 resource.invoke(Resource.Success(fileList))
             } catch (e: Exception) {
                 resource.invoke(Resource.Error(e.localizedMessage))

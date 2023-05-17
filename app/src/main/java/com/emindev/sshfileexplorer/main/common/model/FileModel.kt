@@ -12,7 +12,8 @@ data class FileModel(val fileName: String, val fileType: FileType, val imageSour
 
     companion object {
 
-        fun specifyFile(fileList: List<String>): List<FileModel> {
+        fun specifyFile(command:String): List<FileModel> {
+            val fileList = command.split("\n")
             val newFileList = ArrayList<FileModel>()
 
             fileList.forEach { fileName ->

@@ -2,11 +2,14 @@ package com.emindev.sshfileexplorer.main.common.model
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.emindev.expensetodolist.helperlibrary.common.helper.test
 import com.emindev.sshfileexplorer.helperlibrary.common.helper.PathHelper
 import com.emindev.sshfileexplorer.helperlibrary.common.helper.StringHelper
 import com.emindev.sshfileexplorer.helperlibrary.common.model.Resource
 import com.emindev.sshfileexplorer.main.common.util.ExplorerUtil
+import com.emindev.sshfileexplorer.main.common.util.SSHChannel
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 
 class ExplorerViewModel() : ViewModel() {
 
@@ -21,6 +24,16 @@ class ExplorerViewModel() : ViewModel() {
     private val _resource = MutableStateFlow<Resource<List<FileModel>>>(Resource.Success(emptyList()))
     val resource = _resource.asStateFlow()
 
+    fun openConnection() {
+        _currentPathString.value = StringHelper.delimiter
+        ExplorerUtil.sourceInPath(StringHelper.delimiter) { fileSource ->
+            _resource.value = fileSource
+        }
+    }
+
+    fun closeConnection() {
+        _resource.value = Resource.Success(emptyList())
+    }
 
     fun nextPath(path: String) {
         val newArrayList = ArrayList<String>()
@@ -44,7 +57,6 @@ class ExplorerViewModel() : ViewModel() {
         currentPathString.combine(_currentPathList) { string, list ->
             val newPath = PathHelper.listToString(_currentListArray)
             _currentPathString.value = newPath
-
             ExplorerUtil.sourceInPath(newPath) { fileSource ->
                 _resource.value = fileSource
             }

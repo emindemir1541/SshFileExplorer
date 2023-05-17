@@ -1,5 +1,6 @@
 package com.emindev.sshfileexplorer.main.common.util
 
+import com.emindev.expensetodolist.helperlibrary.common.helper.test
 import com.emindev.sshfileexplorer.helperlibrary.common.model.Resource
 import com.emindev.sshfileexplorer.main.data.sshrepository.Device
 import com.jcraft.jsch.ChannelExec
@@ -15,11 +16,11 @@ import java.io.ByteArrayOutputStream
 object SSHChannel {
 
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
-    private lateinit var session: Session
+    private var session: Session? = null
 
     val connection = flow<Boolean> {
         while (true) {
-            emit(session.isConnected)
+            emit(session?.isConnected ?: false)
             delay(1000)
         }
     }
@@ -28,11 +29,10 @@ object SSHChannel {
         situation.invoke(Resource.Loading())
         coroutineScope.launch {
             try {
-
                 session = JSch().getSession(device.user, device.host, device.port)
-                session.setPassword(device.password)
-                session.setConfig("StrictHostKeyChecking", "no")
-                session.connect()
+                session!!.setPassword(device.password)
+                session!!.setConfig("StrictHostKeyChecking", "no")
+                session!!.connect()
                 situation.invoke(Resource.Success(null))
             } catch (e: Exception) {
                 situation.invoke(Resource.Error(e.localizedMessage))
@@ -42,7 +42,7 @@ object SSHChannel {
 
     fun command(command: String): String {
         try {
-            val channel = session.openChannel("exec") as ChannelExec
+            val channel = session!!.openChannel("exec") as ChannelExec
             val outputStream = ByteArrayOutputStream()
             channel.outputStream = outputStream
             channel.setCommand(command)
@@ -62,12 +62,13 @@ object SSHChannel {
     }
 
     fun disconnect() = coroutineScope.launch {
-        try {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                if (session?.isConnected == true)
+                    session?.disconnect()
+            } catch (_: Exception) {
 
-            if (session.isConnected)
-                session.disconnect()
-        } catch (_: Exception) {
-
+            }
         }
 
     }

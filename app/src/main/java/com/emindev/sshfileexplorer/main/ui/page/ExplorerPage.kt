@@ -26,6 +26,7 @@ import com.emindev.expensetodolist.helperlibrary.common.helper.Helper
 import com.emindev.sshfileexplorer.helperlibrary.common.model.Resource
 import com.emindev.sshfileexplorer.R
 import com.emindev.sshfileexplorer.helperlibrary.common.helper.StringHelper
+import com.emindev.sshfileexplorer.main.common.constant.FileType
 import com.emindev.sshfileexplorer.main.common.model.ExplorerViewModel
 import com.emindev.sshfileexplorer.main.common.model.FileModel
 
@@ -62,9 +63,13 @@ fun ExplorerPage(explorerPage: MutableState<Boolean>, viewModel: ExplorerViewMod
 
         when (fileResource.value) {
             is Resource.Success -> {
-                items(fileResource.value.data ?: emptyList()) { folder ->
-                    FileRow(file = folder) {
-                        viewModel.nextPath(folder.fileName)
+                items(fileResource.value.data ?: emptyList()) { file ->
+                    FileRow(file = file) {
+                        if (file.fileType == FileType.FOLDER)
+                            viewModel.nextPath(file.fileName)
+                        else   {
+                            // TODO: Download File
+                        }
                     }
                 }
             }
@@ -75,11 +80,10 @@ fun ExplorerPage(explorerPage: MutableState<Boolean>, viewModel: ExplorerViewMod
             }
             is Resource.Error -> {
                 item {
-                    ErrorView(fileResource.value.message ?: stringResource(id =R.string.unknown_error ))
+                    ErrorView(fileResource.value.message ?: stringResource(id = R.string.unknown_error))
                 }
             }
         }
-
 
 
     }

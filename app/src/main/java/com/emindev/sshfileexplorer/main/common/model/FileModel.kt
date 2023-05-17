@@ -16,7 +16,7 @@ data class FileModel(val fileName: String, val fileType: FileType, val imageSour
             val newFileList = ArrayList<FileModel>()
 
             fileList.forEach { fileName ->
-                if (fileName.isNotBlank() && fileName == ".") {
+                if (fileName.isNotBlank() && fileName != ".") {
 
                     val fileExtension = fileName.split(".").last()
 

@@ -1,5 +1,6 @@
 package com.emindev.sshfileexplorer.main.ui.page
 
+import android.content.Context
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -8,26 +9,31 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.emindev.expensetodolist.helperlibrary.common.helper.Helper
 import com.emindev.expensetodolist.helperlibrary.common.helper.addLog
+import com.emindev.expensetodolist.helperlibrary.common.helper.test
 import com.emindev.sshfileexplorer.helperlibrary.common.model.Resource
 import com.emindev.sshfileexplorer.R
 import com.emindev.sshfileexplorer.helperlibrary.common.helper.DateUtil
 import com.emindev.sshfileexplorer.main.common.constant.Page
+import com.emindev.sshfileexplorer.main.common.model.DialogViewModel
+import com.emindev.sshfileexplorer.main.common.model.ErrorDialogModel
+import com.emindev.sshfileexplorer.main.common.util.ErrorUtil
 import com.emindev.sshfileexplorer.main.common.util.SSHChannel
 import com.emindev.sshfileexplorer.main.data.sshrepository.Device
 import com.emindev.sshfileexplorer.main.data.sshrepository.DeviceEvent
 import com.emindev.sshfileexplorer.main.data.sshrepository.DeviceState
+import com.emindev.sshfileexplorer.main.ui.component.ErrorDialog
 import com.emindev.sshfileexplorer.main.ui.component.LoadingDialog
 
 @Composable
-fun MainPage(navController: NavController,state: DeviceState, onEvent: (DeviceEvent) -> Unit) {
+fun MainPage(navController: NavController, state: DeviceState, onEvent: (DeviceEvent) -> Unit, dialogViewModel: DialogViewModel) {
 
-    val loadingDialog = remember { mutableStateOf(false) }
-
-    LoadingDialog(show = loadingDialog)
+    val context = LocalContext.current
 
     LazyColumn(
         modifier = Modifier
@@ -44,7 +50,7 @@ fun MainPage(navController: NavController,state: DeviceState, onEvent: (DeviceEv
                 OutlinedTextField(value = state.password, onValueChange = { onEvent(DeviceEvent.SetPassword(it)) }, placeholder = { Text(text = stringResource(id = R.string.password)) })
                 Button(onClick = {
 
-                    connect(state.toDevice(), onEvent, navController, loadingDialog)
+                    connect(state.toDevice(), onEvent, navController, dialogViewModel, context)
 
                 }) {
                     Text(text = stringResource(id = R.string.connect))
@@ -69,7 +75,7 @@ fun MainPage(navController: NavController,state: DeviceState, onEvent: (DeviceEv
                 onEvent(DeviceEvent.SetPassword(device.password))
                 onEvent(DeviceEvent.SetLastJoinDate(DateUtil.currentTime))
 
-                connect(device, onEvent, navController, loadingDialog)
+                connect(device, onEvent, navController, dialogViewModel, context)
             }
         }
 
@@ -99,22 +105,23 @@ private fun DeviceRow(device: Device, onClick: () -> Unit) {
 
 }
 
-fun connect(device: Device, onEvent: (DeviceEvent) -> Unit, navController: NavController, loadingDialog: MutableState<Boolean>) {
+fun connect(device: Device, onEvent: (DeviceEvent) -> Unit, navController: NavController, dialogViewModel: DialogViewModel, context: Context) {
 
-    SSHChannel.connect(device) { situation ->
+    SSHChannel.connect(context, device) { situation ->
         when (situation) {
             is Resource.Error -> {
-                addLog("Connection Error:", situation.message)
-                loadingDialog.value = false
+                dialogViewModel.showErrorDialog(ErrorDialogModel(true, context.getString(R.string.connection_failed), situation.message ?: context.getString(R.string.unknown_error)))
+                test = "error resource"
             }
             is Resource.Loading -> {
-                loadingDialog.value = true
+                dialogViewModel.showLoadingDialog()
+
             }
             is Resource.Success -> {
                 onEvent(DeviceEvent.Connect)
                 onEvent(DeviceEvent.SaveDevice)
                 onEvent(DeviceEvent.HideDialog)
-                loadingDialog.value = false
+                dialogViewModel.hideAllDialogs()
                 navController.navigate(Page.Explorer.route)
             }
         }

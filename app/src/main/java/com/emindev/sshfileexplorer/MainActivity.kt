@@ -17,9 +17,12 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.room.Room
+import com.emindev.sshfileexplorer.main.common.model.DialogViewModel
 import com.emindev.sshfileexplorer.main.common.model.ExplorerViewModel
 import com.emindev.sshfileexplorer.main.data.sshrepository.DeviceDatabase
 import com.emindev.sshfileexplorer.main.data.sshrepository.DeviceViewModel
+import com.emindev.sshfileexplorer.main.ui.component.ErrorDialog
+import com.emindev.sshfileexplorer.main.ui.component.LoadingDialog
 import com.emindev.sshfileexplorer.main.ui.page.ExplorerPage
 import com.emindev.sshfileexplorer.main.ui.page.MainPage
 import com.emindev.sshfileexplorer.main.ui.page.Navigation
@@ -42,6 +45,7 @@ class MainActivity : ComponentActivity() {
     )
 
     private val explorerViewModel by viewModels<ExplorerViewModel>()
+    private val dialogViewModel by viewModels<DialogViewModel>()
 
     @SuppressLint("CoroutineCreationDuringComposition")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,9 +55,15 @@ class MainActivity : ComponentActivity() {
                 // A surface container using the 'background' color from the theme
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
 
+                    val errorDialog = dialogViewModel.errorDialog.collectAsState()
+                    val loadingDialog = dialogViewModel.loadingDialog.collectAsState()
+
+                    LoadingDialog(loadingDialog)
+                    ErrorDialog(errorDialog,dialogViewModel)
+
                     val state by deviceViewModel.state.collectAsState()
 
-                    Navigation(state = state, onEvent = deviceViewModel::onEvent, explorerViewModel = explorerViewModel)
+                    Navigation(state = state, onEvent = deviceViewModel::onEvent, explorerViewModel = explorerViewModel,dialogViewModel)
                 }
 
             }

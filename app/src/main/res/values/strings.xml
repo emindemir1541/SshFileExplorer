@@ -19,11 +19,16 @@
     <string name="unknown">Unknown</string>
     <string name="folder">Folder</string>
 
+    <string name="ok">Ok</string>
+    <string name="error">Error</string>
 
     <!--messages-->
     <string name="connection_failed">Connection Failed: </string>
     <string name="command_push_failed">Command Push Failed: </string>
     <string name="ssh_connection_lost">SSH Connection Lost</string>
     <string name="unknown_error">Unknown Error</string>
+    <string name="is_online_error">Please open your wifi or mobil internet</string>
+    <string name="is_online_error_unknown_reason">Please connect to internet</string>
+    <string name="time_out_error">Connection Time Out, Server can be closed or port may be wrong</string>
 
 </resources>

@@ -22,6 +22,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.emindev.expensetodolist.helperlibrary.common.helper.Helper
 import com.emindev.sshfileexplorer.helperlibrary.common.model.Resource
 import com.emindev.sshfileexplorer.R
@@ -35,7 +36,7 @@ import com.emindev.sshfileexplorer.main.data.sshrepository.DeviceEvent
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
-fun ExplorerPage(explorerPage: MutableState<Boolean>, viewModel: ExplorerViewModel,onEvent:(DeviceEvent)->Unit) {
+fun ExplorerPage(navController: NavController, viewModel: ExplorerViewModel,onEvent:(DeviceEvent)->Unit) {
 
     val context = LocalContext.current
     val backEnabled = remember { mutableStateOf(true) }
@@ -53,7 +54,7 @@ fun ExplorerPage(explorerPage: MutableState<Boolean>, viewModel: ExplorerViewMod
         if (currentPathString.value == StringHelper.delimiter) {
             viewModel.closeConnection()
             onEvent(DeviceEvent.Disconnect)
-            explorerPage.value = false
+            navController.popBackStack()
            backEnabled.value = false
         }
         else {

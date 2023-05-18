@@ -10,10 +10,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.emindev.expensetodolist.helperlibrary.common.helper.addLog
 import com.emindev.sshfileexplorer.helperlibrary.common.model.Resource
 import com.emindev.sshfileexplorer.R
 import com.emindev.sshfileexplorer.helperlibrary.common.helper.DateUtil
+import com.emindev.sshfileexplorer.main.common.constant.Page
 import com.emindev.sshfileexplorer.main.common.util.SSHChannel
 import com.emindev.sshfileexplorer.main.data.sshrepository.Device
 import com.emindev.sshfileexplorer.main.data.sshrepository.DeviceEvent
@@ -21,12 +23,12 @@ import com.emindev.sshfileexplorer.main.data.sshrepository.DeviceState
 import com.emindev.sshfileexplorer.main.ui.component.LoadingDialog
 
 @Composable
-fun MainPage(state: DeviceState, onEvent: (DeviceEvent) -> Unit, explorerPage: MutableState<Boolean>) {
+fun MainPage(navController: NavController,state: DeviceState, onEvent: (DeviceEvent) -> Unit) {
 
     val loadingDialog = remember { mutableStateOf(false) }
-    
+
     LoadingDialog(show = loadingDialog)
-    
+
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
@@ -42,7 +44,7 @@ fun MainPage(state: DeviceState, onEvent: (DeviceEvent) -> Unit, explorerPage: M
                 OutlinedTextField(value = state.password, onValueChange = { onEvent(DeviceEvent.SetPassword(it)) }, placeholder = { Text(text = stringResource(id = R.string.password)) })
                 Button(onClick = {
 
-                    connect(state.toDevice(), onEvent, explorerPage,loadingDialog)
+                    connect(state.toDevice(), onEvent, navController, loadingDialog)
 
                 }) {
                     Text(text = stringResource(id = R.string.connect))
@@ -67,7 +69,7 @@ fun MainPage(state: DeviceState, onEvent: (DeviceEvent) -> Unit, explorerPage: M
                 onEvent(DeviceEvent.SetPassword(device.password))
                 onEvent(DeviceEvent.SetLastJoinDate(DateUtil.currentTime))
 
-                connect(device, onEvent, explorerPage,loadingDialog)
+                connect(device, onEvent, navController, loadingDialog)
             }
         }
 
@@ -97,7 +99,7 @@ private fun DeviceRow(device: Device, onClick: () -> Unit) {
 
 }
 
-fun connect(device: Device, onEvent: (DeviceEvent) -> Unit, explorerPage: MutableState<Boolean>, loadingDialog: MutableState<Boolean>) {
+fun connect(device: Device, onEvent: (DeviceEvent) -> Unit, navController: NavController, loadingDialog: MutableState<Boolean>) {
 
     SSHChannel.connect(device) { situation ->
         when (situation) {
@@ -113,7 +115,7 @@ fun connect(device: Device, onEvent: (DeviceEvent) -> Unit, explorerPage: Mutabl
                 onEvent(DeviceEvent.SaveDevice)
                 onEvent(DeviceEvent.HideDialog)
                 loadingDialog.value = false
-                explorerPage.value = true
+                navController.navigate(Page.Explorer.route)
             }
         }
     }

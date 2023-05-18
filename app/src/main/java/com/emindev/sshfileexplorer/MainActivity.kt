@@ -22,6 +22,7 @@ import com.emindev.sshfileexplorer.main.data.sshrepository.DeviceDatabase
 import com.emindev.sshfileexplorer.main.data.sshrepository.DeviceViewModel
 import com.emindev.sshfileexplorer.main.ui.page.ExplorerPage
 import com.emindev.sshfileexplorer.main.ui.page.MainPage
+import com.emindev.sshfileexplorer.main.ui.page.Navigation
 import com.emindev.sshfileexplorer.main.ui.theme.SSHFileExplorerTheme
 import kotlinx.coroutines.*
 
@@ -52,15 +53,7 @@ class MainActivity : ComponentActivity() {
 
                     val state by deviceViewModel.state.collectAsState()
 
-                    val explorerPage = remember { mutableStateOf(false) }
-
-                    val onEvent = deviceViewModel::onEvent
-
-                    if (explorerPage.value)
-                        ExplorerPage(explorerPage,explorerViewModel, onEvent)
-                    else
-                        MainPage(state = state, onEvent = onEvent,explorerPage)
-
+                    Navigation(state = state, onEvent = deviceViewModel::onEvent, explorerViewModel = explorerViewModel)
                 }
 
             }

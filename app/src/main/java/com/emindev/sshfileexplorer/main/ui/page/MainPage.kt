@@ -1,35 +1,32 @@
 package com.emindev.sshfileexplorer.main.ui.page
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.emindev.expensetodolist.helperlibrary.common.helper.Helper
 import com.emindev.expensetodolist.helperlibrary.common.helper.addLog
-import com.emindev.expensetodolist.helperlibrary.common.helper.test
 import com.emindev.sshfileexplorer.helperlibrary.common.model.Resource
 import com.emindev.sshfileexplorer.R
 import com.emindev.sshfileexplorer.helperlibrary.common.helper.DateUtil
-import com.emindev.sshfileexplorer.main.common.util.ExplorerUtil
 import com.emindev.sshfileexplorer.main.common.util.SSHChannel
 import com.emindev.sshfileexplorer.main.data.sshrepository.Device
 import com.emindev.sshfileexplorer.main.data.sshrepository.DeviceEvent
 import com.emindev.sshfileexplorer.main.data.sshrepository.DeviceState
+import com.emindev.sshfileexplorer.main.ui.component.LoadingDialog
 
 @Composable
 fun MainPage(state: DeviceState, onEvent: (DeviceEvent) -> Unit, explorerPage: MutableState<Boolean>) {
 
-
+    val loadingDialog = remember { mutableStateOf(false) }
+    
+    LoadingDialog(show = loadingDialog)
+    
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
@@ -45,7 +42,7 @@ fun MainPage(state: DeviceState, onEvent: (DeviceEvent) -> Unit, explorerPage: M
                 OutlinedTextField(value = state.password, onValueChange = { onEvent(DeviceEvent.SetPassword(it)) }, placeholder = { Text(text = stringResource(id = R.string.password)) })
                 Button(onClick = {
 
-                    connect(state.toDevice(), onEvent, explorerPage)
+                    connect(state.toDevice(), onEvent, explorerPage,loadingDialog)
 
                 }) {
                     Text(text = stringResource(id = R.string.connect))
@@ -70,7 +67,7 @@ fun MainPage(state: DeviceState, onEvent: (DeviceEvent) -> Unit, explorerPage: M
                 onEvent(DeviceEvent.SetPassword(device.password))
                 onEvent(DeviceEvent.SetLastJoinDate(DateUtil.currentTime))
 
-                connect(device, onEvent, explorerPage)
+                connect(device, onEvent, explorerPage,loadingDialog)
             }
         }
 
@@ -100,16 +97,22 @@ private fun DeviceRow(device: Device, onClick: () -> Unit) {
 
 }
 
-fun connect(device: Device, onEvent: (DeviceEvent) -> Unit, explorerPage: MutableState<Boolean>) {
+fun connect(device: Device, onEvent: (DeviceEvent) -> Unit, explorerPage: MutableState<Boolean>, loadingDialog: MutableState<Boolean>) {
 
     SSHChannel.connect(device) { situation ->
         when (situation) {
-            is Resource.Error -> addLog("Connection Error:", situation.message)
-            is Resource.Loading -> {}
+            is Resource.Error -> {
+                addLog("Connection Error:", situation.message)
+                loadingDialog.value = false
+            }
+            is Resource.Loading -> {
+                loadingDialog.value = true
+            }
             is Resource.Success -> {
                 onEvent(DeviceEvent.Connect)
                 onEvent(DeviceEvent.SaveDevice)
                 onEvent(DeviceEvent.HideDialog)
+                loadingDialog.value = false
                 explorerPage.value = true
             }
         }

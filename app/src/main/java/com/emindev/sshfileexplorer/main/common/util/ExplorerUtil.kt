@@ -23,8 +23,6 @@ object ExplorerUtil {
                 resource.invoke(Resource.Error(e.localizedMessage))
             }
         }
-
-
     }
 
 

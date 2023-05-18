@@ -29,6 +29,8 @@ import com.emindev.sshfileexplorer.helperlibrary.common.helper.StringHelper
 import com.emindev.sshfileexplorer.main.common.constant.FileType
 import com.emindev.sshfileexplorer.main.common.model.ExplorerViewModel
 import com.emindev.sshfileexplorer.main.common.model.FileModel
+import com.emindev.sshfileexplorer.main.ui.component.ErrorView
+import com.emindev.sshfileexplorer.main.ui.component.LoadingView
 import com.emindev.sshfileexplorer.main.data.sshrepository.DeviceEvent
 
 @SuppressLint("CoroutineCreationDuringComposition")
@@ -112,19 +114,7 @@ private fun FileRow(file: FileModel, onClick: () -> Unit) {
     }
 }
 
-@Composable
-private fun LoadingView() {
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-        CircularProgressIndicator(color = Color.Black)
-    }
-}
 
-@Composable
-private fun ErrorView(error: String) {
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-        Text(text = error)
-    }
-}
 
 private fun checkConnections(situation: MutableState<Resource<String>>, isOnline: State<Boolean>, context: Context) {
     if (!isOnline.value) {

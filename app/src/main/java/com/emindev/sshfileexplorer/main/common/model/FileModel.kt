@@ -13,13 +13,13 @@ data class FileModel(val fileName: String, val fileType: FileType, val imageSour
     companion object {
 
         fun specifyFile(command:String): List<FileModel> {
-            val fileList = command.split("\n")
+            val fileList = command.split(StringHelper.escapeSequence)
             val newFileList = ArrayList<FileModel>()
 
             fileList.forEach { fileName ->
-                if (fileName.isNotBlank() && fileName != ".") {
+                if (fileName.isNotBlank() && fileName != StringHelper.dat) {
 
-                    val fileExtension = fileName.split(".").last()
+                    val fileExtension = fileName.split(StringHelper.dat).last()
 
                     if (FileExtensions.image.contains(fileExtension)) {
                         newFileList.add(FileModel(fileName, FileType.PICTURE, R.drawable.image, R.string.image))

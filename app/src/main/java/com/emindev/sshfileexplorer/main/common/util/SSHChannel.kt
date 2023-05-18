@@ -7,6 +7,7 @@ import com.emindev.sshfileexplorer.R
 import com.emindev.sshfileexplorer.helperlibrary.common.model.Resource
 import com.emindev.sshfileexplorer.main.data.sshrepository.Device
 import com.jcraft.jsch.ChannelExec
+import com.jcraft.jsch.ChannelSftp
 import com.jcraft.jsch.JSch
 import com.jcraft.jsch.Session
 import kotlinx.coroutines.*
@@ -30,7 +31,6 @@ object SSHChannel {
     fun connect(context: Context, device: Device, situation: (Resource<String>) -> Unit) {
         situation.invoke(Resource.Loading())
         val errorHandler = CoroutineExceptionHandler { _, throwable ->
-            test = throwable.localizedMessage
             if (throwable.localizedMessage != ErrorUtil.currentStateThreadError && throwable.localizedMessage != null) {
                 if (throwable.localizedMessage!!.contains(ErrorUtil.networkIsUnReachable)) {
                     if (!Helper.isOnline(context))
@@ -71,8 +71,14 @@ object SSHChannel {
         channel.disconnect()
 
         outputStream.toString()
+    }
 
-
+    fun getFile(serverPath: String, localPath:String)=CoroutineScope(Dispatchers.IO).async {
+        val channel = session!!.openChannel("sftp") as ChannelSftp
+        channel.connect()
+        channel.get(serverPath,localPath)
+        channel.disconnect()
+        "Success"
     }
 
     fun disconnect() = CoroutineScope(Dispatchers.IO).launch {

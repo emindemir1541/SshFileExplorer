@@ -1,6 +1,7 @@
 package com.emindev.sshfileexplorer.main.ui.page
 
 import android.content.Context
+import android.os.Environment
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -34,6 +35,7 @@ import com.emindev.sshfileexplorer.main.ui.component.LoadingDialog
 fun MainPage(navController: NavController, state: DeviceState, onEvent: (DeviceEvent) -> Unit, dialogViewModel: DialogViewModel) {
 
     val context = LocalContext.current
+
 
     LazyColumn(
         modifier = Modifier
@@ -111,7 +113,6 @@ fun connect(device: Device, onEvent: (DeviceEvent) -> Unit, navController: NavCo
         when (situation) {
             is Resource.Error -> {
                 dialogViewModel.showErrorDialog(ErrorDialogModel(true, context.getString(R.string.connection_failed), situation.message ?: context.getString(R.string.unknown_error)))
-                test = "error resource"
             }
             is Resource.Loading -> {
                 dialogViewModel.showLoadingDialog()

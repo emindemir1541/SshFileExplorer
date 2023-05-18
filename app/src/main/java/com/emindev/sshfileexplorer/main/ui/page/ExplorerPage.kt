@@ -1,7 +1,11 @@
+@file:OptIn(DelicateCoroutinesApi::class)
+
 package com.emindev.sshfileexplorer.main.ui.page
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Environment
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -24,38 +28,49 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.emindev.expensetodolist.helperlibrary.common.helper.Helper
+import com.emindev.expensetodolist.helperlibrary.common.helper.test
 import com.emindev.sshfileexplorer.helperlibrary.common.model.Resource
 import com.emindev.sshfileexplorer.R
+import com.emindev.sshfileexplorer.helperlibrary.common.helper.PathHelper
 import com.emindev.sshfileexplorer.helperlibrary.common.helper.StringHelper
 import com.emindev.sshfileexplorer.main.common.constant.FileType
+import com.emindev.sshfileexplorer.main.common.model.DialogViewModel
+import com.emindev.sshfileexplorer.main.common.model.ErrorDialogModel
 import com.emindev.sshfileexplorer.main.common.model.ExplorerViewModel
 import com.emindev.sshfileexplorer.main.common.model.FileModel
+import com.emindev.sshfileexplorer.main.common.util.ExplorerUtil
 import com.emindev.sshfileexplorer.main.ui.component.ErrorView
 import com.emindev.sshfileexplorer.main.ui.component.LoadingView
 import com.emindev.sshfileexplorer.main.data.sshrepository.DeviceEvent
+import kotlinx.coroutines.*
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
-fun ExplorerPage(navController: NavController, viewModel: ExplorerViewModel,onEvent:(DeviceEvent)->Unit) {
+fun ExplorerPage(navController: NavController, viewModel: ExplorerViewModel, onEvent: (DeviceEvent) -> Unit, dialogViewModel: DialogViewModel) {
 
     val context = LocalContext.current
     val backEnabled = remember { mutableStateOf(true) }
     val fileResource = viewModel.resource.collectAsState()
     val currentPathString = viewModel.currentPathString.collectAsState()
-    val situation = remember { mutableStateOf<Resource<String>>(Resource.Success(null)) }
-    val isOnline = Helper.isOnlineFlow(context).collectAsState(false)
+    val isOnline = Helper.isOnlineFlow(context).collectAsState(true)
 
     viewModel.openConnection()
 
+    fun exit() {
+        viewModel.closeConnection()
+        onEvent(DeviceEvent.Disconnect)
+        navController.popBackStack()
+    }
 
-    checkConnections(situation, isOnline, context)
+    if (!isOnline.value) {
+        dialogViewModel.showErrorDialog(ErrorDialogModel(true, context.getString(R.string.internet_connection_lost), context.getString(R.string.is_online_error)))
+        exit()
+    }
 
     BackHandler(backEnabled.value) {
         if (currentPathString.value == StringHelper.delimiter) {
-            viewModel.closeConnection()
-            onEvent(DeviceEvent.Disconnect)
-            navController.popBackStack()
-           backEnabled.value = false
+            exit()
+            backEnabled.value = false
         }
         else {
             backEnabled.value = true
@@ -76,8 +91,26 @@ fun ExplorerPage(navController: NavController, viewModel: ExplorerViewModel,onEv
                     FileRow(file = file) {
                         if (file.fileType == FileType.FOLDER)
                             viewModel.nextPath(file.fileName)
-                        else   {
-                            // TODO: Download File
+                        else {
+                            ExplorerUtil.downloadFile(currentPathString.value + file.fileName, PathHelper.downloadFolderPath) {
+                                test = when (it) {
+                                    is Resource.Error -> {
+                                        dialogViewModel.showErrorDialog(ErrorDialogModel(true, context.getString(R.string.download_error), it.message ?: context.getString(R.string.unknown_error)))
+                                    }
+                                    is Resource.Loading -> {
+                                        dialogViewModel.showLoadingDialog()
+                                    }
+                                    is Resource.Success -> {
+                                        dialogViewModel.hideAllDialogs()
+                                        GlobalScope.launch {
+                                            withContext(Dispatchers.Main){
+                                                Toast.makeText(context, context.getString(R.string.downloaded_succesfuly), Toast.LENGTH_LONG).show()
+                                            }
+                                        }
+
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -97,6 +130,7 @@ fun ExplorerPage(navController: NavController, viewModel: ExplorerViewModel,onEv
 
     }
 
+
 }
 
 
@@ -115,10 +149,3 @@ private fun FileRow(file: FileModel, onClick: () -> Unit) {
     }
 }
 
-
-
-private fun checkConnections(situation: MutableState<Resource<String>>, isOnline: State<Boolean>, context: Context) {
-    if (!isOnline.value) {
-        situation.value = Resource.Error(context.getString(R.string.ssh_connection_lost))
-    }
-}

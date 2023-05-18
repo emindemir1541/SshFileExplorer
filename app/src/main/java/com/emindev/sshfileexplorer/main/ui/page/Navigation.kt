@@ -25,7 +25,7 @@ fun Navigation(state: DeviceState, onEvent: (DeviceEvent) -> Unit,explorerViewMo
         }
 
         animatedComposable(route = Page.Explorer.route){
-            ExplorerPage(navController,explorerViewModel,onEvent)
+            ExplorerPage(navController,explorerViewModel,onEvent,dialogViewModel)
         }
     }
 

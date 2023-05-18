@@ -1,5 +1,6 @@
 package com.emindev.sshfileexplorer.helperlibrary.common.helper
 
+import android.os.Environment
 import com.emindev.sshfileexplorer.R
 import com.emindev.sshfileexplorer.main.common.constant.FileType
 import com.emindev.sshfileexplorer.main.common.model.FileModel
@@ -14,9 +15,7 @@ object PathHelper {
         return pathString
     }
 
-    fun pathToList() {
-
-    }
+   val downloadFolderPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString() + StringHelper.delimiter
 
     fun folderCommandToList(command: String): ArrayList<String> {
         val folderList = ArrayList<String>()

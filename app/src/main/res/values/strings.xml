@@ -30,5 +30,8 @@
     <string name="is_online_error">Please open your wifi or mobil internet</string>
     <string name="is_online_error_unknown_reason">Please connect to internet</string>
     <string name="time_out_error">Connection Time Out, Server can be closed or port may be wrong</string>
+    <string name="download_error">Download Error</string>
+    <string name="downloaded_succesfuly">File Downloaded Succesfuly to Download Folder</string>
+    <string name="internet_connection_lost">Internet Connection Lost</string>
 
 </resources>
